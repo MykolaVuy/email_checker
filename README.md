@@ -1,6 +1,6 @@
 # 📧 Email Checker
 
-[![Version](https://img.shields.io/badge/version-0.1.0-darkgreen.svg)](pyproject.toml)
+[![PyPI version](https://img.shields.io/pypi/v/email-checker-mv)](https://pypi.org/project/email-checker-mv/)
 [![Python Version](https://img.shields.io/badge/python-3.12+-blue)](https://www.python.org/)
 [![Docker Image](https://img.shields.io/badge/docker-ready-blue)](https://hub.docker.com/)
 [![MIT License](https://img.shields.io/badge/license-MIT-darkgreen.svg)](LICENSE)
@@ -24,7 +24,7 @@
 Install the tool locally using `pip`:
 
 ```bash
-  pip install .
+  pip install email-checker-mv
 ```
 
 ###  Uninstall (CLI Version)

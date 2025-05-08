@@ -1,7 +1,8 @@
 [project]
-name = "email-checker"
-version = "0.1.0"
+name = "email-checker-mv"
+version = "0.1.1"
 description = "Batch and CLI email validator"
+license = {text = "MIT"}
 authors = [{ name = "Mykola Vuy", email = "mykola.vuy@gmail.com" }]
 readme = "README.md"
 requires-python = ">=3.8"
@@ -9,7 +10,8 @@ requires-python = ">=3.8"
 dependencies = [
     "pandas",
     "dnspython",
-    "email-validator"
+    "email-validator",
+    "requests"
 ]
 
 [project.scripts]
