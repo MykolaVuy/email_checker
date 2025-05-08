@@ -1,0 +1,27 @@
+[project]
+name = "email-checker"
+version = "0.1.0"
+description = "Batch and CLI email validator"
+authors = [{ name = "Mykola Vuy", email = "mykola.vuy@gmail.com" }]
+readme = "README.md"
+requires-python = ">=3.8"
+
+dependencies = [
+    "pandas",
+    "dnspython",
+    "email-validator"
+]
+
+[project.scripts]
+check_email = "app.cli:run_cli"
+check_batch = "app.runner:run_batch"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools]
+include-package-data = true
