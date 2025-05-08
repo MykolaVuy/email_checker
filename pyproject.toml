@@ -1,6 +1,6 @@
 [project]
 name = "email-checker-mv"
-version = "0.1.1"
+version = "0.1.2"
 description = "Batch and CLI email validator"
 license = {text = "MIT"}
 authors = [{ name = "Mykola Vuy", email = "mykola.vuy@gmail.com" }]
