@@ -32,7 +32,7 @@ RUN mkdir -p src/app/data && \
 
 # Create cron jobs
 RUN echo "*/30 * * * * cd /app && /usr/local/bin/check_batch >> /var/log/cron.log 2>&1" > /etc/cron.d/app-cron
-RUN echo "0 3 * * 1 cd /app && /usr/local/bin/python3 src/app/utils/update_disposable_domains.py >> /var/log/cron.log 2>&1" >> /etc/cron.d/app-cron
+RUN echo "0 3 * * 1 cd /app && /usr/local/bin/update_domains >> /var/log/cron.log 2>&1" >> /etc/cron.d/app-cron
 
 # Set permissions for the cron file
 RUN chmod 0644 /etc/cron.d/app-cron

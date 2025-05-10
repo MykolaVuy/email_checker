@@ -18,7 +18,7 @@ def check_email(email: str) -> str:
 
     mx_host = get_mx_record(email)
     if not mx_host:
-        return "invalid"
+        return "invalid (mx-record)"
 
     if not is_smtp_valid(email, mx_host):
         return "invalid (smtp)"

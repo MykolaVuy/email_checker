@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from app.config import MAX_EMAILS_PER_RUN, DEBUG
 from app.services import (
     check_email,

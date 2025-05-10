@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# befor first run
-# chmod +x manage.sh
-
-# usage: ./manage.sh [-start | -stop | -destroy]
-
 PROJECT_NAME="email_checker"
 COMPOSE_FILE="docker-compose.yml"
 
@@ -29,17 +24,51 @@ function destroy() {
   fi
 }
 
+function logs() {
+  echo "📄 Following cron logs..."
+  docker exec -it "$PROJECT_NAME" tail -f /var/log/cron.log
+}
+
+function batch() {
+  echo "📬 Running batch email check..."
+  docker exec -it "$PROJECT_NAME" check_batch
+}
+
+function check() {
+  if [ -z "$2" ]; then
+    echo "❌ Please provide an email to check. Usage: ./manage.sh -check someone@example.com"
+    exit 1
+  fi
+  echo "✅ Checking single email: $2"
+  docker exec -it "$PROJECT_NAME" check_email "$2"
+}
+
+function update() {
+  echo "🔄 Updating disposable domains list..."
+  docker exec -it "$PROJECT_NAME" update_domains
+}
+
+function help() {
+  echo ""
+  echo "📘 Available commands:"
+  echo "  -start         🟢 Start the container with build"
+  echo "  -stop          🛑 Stop the container"
+  echo "  -destroy       ⚠️  Remove container, images, volumes"
+  echo "  -logs          📄 Tail cron logs"
+  echo "  -batch         📬 Run batch email check"
+  echo "  -check email   ✅ Run single email check"
+  echo "  -update        🔄 Update list of disposable domains"
+  echo "  -help          ℹ️  Show this help message"
+  echo ""
+}
+
 case "$1" in
-  -start)
-    start
-    ;;
-  -stop)
-    stop
-    ;;
-  -destroy)
-    destroy
-    ;;
-  *)
-    echo "Usage: ./manage.sh [-start | -stop | -destroy]"
-    ;;
+  -start) start ;;
+  -stop) stop ;;
+  -destroy) destroy ;;
+  -logs) logs ;;
+  -batch) batch ;;
+  -check) check "$@" ;;
+  -update) update ;;
+  -help | *) help ;;
 esac
