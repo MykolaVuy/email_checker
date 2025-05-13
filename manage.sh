@@ -56,7 +56,7 @@ function help() {
   echo "  -destroy       ⚠️  Remove container, images, volumes"
   echo "  -logs          📄 Tail cron logs"
   echo "  -batch         📬 Run batch email check"
-  echo "  -check email   ✅ Run single email check"
+  echo "  -check [email] ✅ Run single email check"
   echo "  -update        🔄 Update list of disposable domains"
   echo "  -help          ℹ️  Show this help message"
   echo ""
