@@ -36,11 +36,18 @@ function batch() {
 
 function check() {
   if [ -z "$2" ]; then
-    echo "❌ Please provide an email to check. Usage: ./manage.sh -check someone@example.com"
+    echo "❌ Please provide an email to check. Usage: ./manage.sh -check someone@example.com [-S|-F]"
     exit 1
   fi
-  echo "✅ Checking single email: $2"
-  docker exec -it "$PROJECT_NAME" check_email "$2"
+  email="$2"
+  flag="$3"
+
+  echo "✅ Checking single email: $email $flag"
+  if [ -n "$flag" ]; then
+    docker exec -it "$PROJECT_NAME" check_email "$email" "$flag"
+  else
+    docker exec -it "$PROJECT_NAME" check_email "$email"
+  fi
 }
 
 function update() {
@@ -51,14 +58,14 @@ function update() {
 function help() {
   echo ""
   echo "📘 Available commands:"
-  echo "  -start         🟢 Start the container with build"
-  echo "  -stop          🛑 Stop the container"
-  echo "  -destroy       ⚠️  Remove container, images, volumes"
-  echo "  -logs          📄 Tail cron logs"
-  echo "  -batch         📬 Run batch email check"
-  echo "  -check [email] ✅ Run single email check"
-  echo "  -update        🔄 Update list of disposable domains"
-  echo "  -help          ℹ️  Show this help message"
+  echo "  -start                🟢 Start the Docker container with build"
+  echo "  -stop                 🛑 Stop the container"
+  echo "  -destroy              ⚠️  Remove container, images, volumes"
+  echo "  -logs                 📄 Tail cron logs"
+  echo "  -batch                📬 Run batch email check"
+  echo "  -check [email] [flag] ✅ Run single email check (optional flags: -S for short, -F for full)"
+  echo "  -update               🔄 Update list of disposable domains"
+  echo "  -help                 ℹ️  Show this help message"
   echo ""
 }
 

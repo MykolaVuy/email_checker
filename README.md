@@ -44,33 +44,85 @@ Feel free to explore, contribute, or fork the project.
 
 ## 🛠️ CLI Commands
 
-| Command                             | Description                                      |
-| ----------------------------------- | ------------------------------------------------ |
-| `check_email someone@example.com`   | ✅ Check a single email                          |
-| `check_batch`                       | 📄 Batch check `.csv` files in the `input/` dir |
-| `update_domains`                    | 🔄 Update the list of disposable domains         |
+| Command                              | Description                                     |
+|--------------------------------------|-------------------------------------------------|
+| `check_email someone@example.com`    | ✅ Check a single email (default output)         |
+| `check_email someone@example.com -S` | ✅ Check a single email (short output)           |
+| `check_email someone@example.com -F` | ✅ Check a single email (full output)            |
+| `check_batch`                        | 📄 Batch check `.csv` files in the `input/` dir |
+| `update_domains`                     | 🔄 Update the list of disposable domains        |
 
 Disposable domains are fetched from [Propaganistas/Laravel-Disposable-Email](https://github.com/Propaganistas/laravel-disposable-email).
 
-### 🔍 Email Verification Results
+#### 📄 CSV Format for `check_batch`
 
-Both `check_email` and `check_batch` return results in the format:
+The `check_batch` command processes a CSV file located in the `input/` directory and expects the following format:
 
-### 📋 Possible values:
+- **Delimiter**: Must be a **comma (`,`)**
+- **Headers**: Required columns are:
+  - `email` – the email address to validate
+  - `status` – must be one of the supported values below
 
-| Result                                      | Meaning                                           |
-|--------------------------------------------|---------------------------------------------------|
-| `valid`                                     | 📥 Address exists and accepts emails              |
-| `invalid\|format`                           | ❌ Invalid email format (regex check failed)      |
-| `invalid\|non-ascii`                        | ❌ Email contains non-ASCII characters            |
-| `invalid\|disposable`                       | 🗑️ Disposable/temporary email address             |
-| `invalid\|mx`                               | 📡 No MX record found for the domain              |
-| `invalid\|smtp no-code: <msg>`              | 🚫 SMTP server gave no response code              |
-| `invalid\|smtp hard-bounce\|<code>\|<msg>`  | ❌ Address does not exist (hard bounce)           |
-| `invalid\|smtp soft-bounce\|<code>\|<msg>`  | ⚠️ Temporary delivery issue (soft bounce)         |
-| `invalid\|smtp unknown\|<code>\|<msg>`      | ❓ Unknown SMTP response code                     |
+Only rows with the appropriate `status` values will be processed. All others will be skipped.
 
-> 📎 Note: `check_batch` writes the result to a new column in the output CSV file for each email.
+#### 🏷️ Supported `status` Values for `check_batch`
+
+| Status       | Description                                                   |
+|--------------|---------------------------------------------------------------|
+| `check`      | Check email with default verbosity                            |
+| `check S`    | Check email with **short** response                           |
+| `check F`    | Check email with **full** response                            |
+| `undefined`  | Alias for `check`, treated the same as `check`               |
+| `undefined S`| Alias for `check S`, runs with **short** verbosity            |
+| `undefined F`| Alias for `check F`, runs with **full** verbosity             |
+
+#### ✅ Example input file (`input/emails.csv`)
+
+```csv
+email,status
+user1@example.com,check
+user2@example.com,undefined
+user3@example.com,check S
+user4@example.com,undefined F
+```
+
+
+### 📤 Output
+
+The output format is consistent across both `check_email` (CLI) and `check_batch` (CSV):
+
+- When using **CLI**, results are printed to the terminal.
+- When using **batch**, results are written to the `status` column in the CSV file.
+
+You can safely rerun the same CSV file — already processed rows (anything except `check`, `check S`, `check F`, etc.) will be skipped.
+
+#### 📋 Possible values
+
+| Result Format                             | Meaning                                         |
+| ----------------------------------------- | ------------------------------------------------|
+| `valid`                                   | 📥 Address exists and accepts emails            |
+| `invalid\|format`                         | ❌ Invalid email format (regex check failed)    |
+| `invalid\|non-ascii`                      | ❌ Email contains non-ASCII characters          |
+| `invalid\|disposable`                     | 🗑️ Disposable/temporary email address           |
+| `invalid\|mx`                             | 📡 No MX record found for the domain            |
+| `invalid\|smtp no-code: <msg>`         	 | 🚫 SMTP connection was closed without a response|
+| `invalid\|smtp <cat_short> <code>`        | ⚙️ Default output: short type and SMTP code     |
+| `invalid\|smtp <cat>\|<code>\|<msg_short>` | 🧾 Short output: verbose type and short message |
+| `invalid\|smtp <cat>\|<code>\|<msg>`      | 📜 Full output: verbose type and full message   |
+
+> 📝 These formats apply both in CLI and in .csv batch processing.
+
+#### 📦 SMTP Response Type Codes
+
+| Code | Meaning                                                                    |
+| ---- | -------------------------------------------------------------------------- |
+| `HB / hard-bounce`    | ❌ **Hard bounce** – Address does not exist               |
+| `SB / soft-bounce`    | ⚠️ **Soft bounce** – Temporary delivery issue             |
+| `PE / protocol-error` | 🧩 **Protocol error** – SMTP syntax or protocol failure   |
+| `UN / unknown`        | ❓ **Unknown** – Unclassified or unknown SMTP response    |
+| `NC / no-code`        | 🔌 **No code** – Connection closed unexpectedly (no code) |
+
+> 📎 Note: `check_batch` rewrites the result to the "status" column in the output CSV file for each email.
 
 ---
 
@@ -86,36 +138,39 @@ You can control Docker using either `make` or `manage.sh`.
   chmod +x manage.sh
 ```
 
-| Command                                  | Description                                |
-| ---------------------------------------- | ------------------------------------------ |
-| `./manage.sh -start`                     | 🟢 Start the Docker container with build   |
-| `./manage.sh -stop`                      | 🔵 Stop the running container              |
-| `./manage.sh -destroy`                   | ⚠️ Remove containers, images, volumes      |
-| `./manage.sh -logs`                      | 📄 Show cron job logs inside the container |
-| `./manage.sh -batch`                     | 📬 Run batch check via Docker              |
-| `./manage.sh -check someone@example.com` | ✅ Run single email check                   |
-| `./manage.sh -update`                    | ὐ1 Update disposable domains inside Docker |
-| `./manage.sh -help`                      | ℹ️ Show help message                       |
+| Command                                     | Description                             |
+| ------------------------------------------- | --------------------------------------- |
+| `./manage.sh -start`                        | 🟢 Start the container with build       |
+| `./manage.sh -stop`                         | 🛑 Stop the container                   |
+| `./manage.sh -destroy`                      | ⚠️ Remove container, images, volumes    |
+| `./manage.sh -logs`                         | 📄 Tail cron logs                       |
+| `./manage.sh -batch`                        | 📬 Run batch email check                |
+| `./manage.sh -check someone@example.com`    | ✅ Run single email check                |
+| `./manage.sh -check someone@example.com -S` | ✅ Run single email check (short output) |
+| `./manage.sh -check someone@example.com -F` | ✅ Run single email check (full output)  |
+| `./manage.sh -update`                       | 🔄 Update list of disposable domains    |
+| `./manage.sh -help`                         | ℹ️ Show this help message               |
 
----
 
 ### ⚙️ `Makefile` Shortcuts
 
 > Use `make help` to list all commands.
 
-| Make Command                           | Description                                   |
-| -------------------------------------- | --------------------------------------------- |
-| `make start`                           | 🟢 Start the container                        |
-| `make stop`                            | 🔵 Stop the container                         |
-| `make destroy`                         | ⚠️ Remove everything related to the container |
-| `make logs`                            | 📄 Follow cron job logs                       |
-| `make batch`                           | 📬 Run batch email check inside Docker        |
-| `make check email=someone@example.com` | ✅ Check a single email                        |
-| `make update`                          | ὐ1 Update disposable domains                  |
+| Command                                     | Description                             |
+| ------------------------------------------- | --------------------------------------- |
+| `./manage.sh -start`                        | 🟢 Start the container with build       |
+| `./manage.sh -stop`                         | 🛑 Stop the container                   |
+| `./manage.sh -destroy`                      | ⚠️ Remove container, images, volumes    |
+| `./manage.sh -logs`                         | 📄 Tail cron logs                       |
+| `./manage.sh -batch`                        | 📬 Run batch email check                |
+| `./manage.sh -check someone@example.com`    | ✅ Run single email check                |
+| `./manage.sh -check someone@example.com -S` | ✅ Run single email check (short output) |
+| `./manage.sh -check someone@example.com -F` | ✅ Run single email check (full output)  |
+| `./manage.sh -update`                       | 🔄 Update list of disposable domains    |
+| `./manage.sh -help`                         | ℹ️ Show this help message               |
 
----
 
-## 📂 Cron Customization
+### 📂 Cron Customization
 
 You can edit the cron configuration directly inside the running container using:
 
@@ -124,13 +179,6 @@ You can edit the cron configuration directly inside the running container using:
 ```
 
 This allows advanced scheduling if needed.
-
----
-
-## 📅 Input Files
-
-* Batch checks read from `.csv` files placed in the `input/` folder.
-* Results are stored in the `output/` folder by default.
 
 ---
 

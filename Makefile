@@ -4,16 +4,17 @@ COMPOSE_FILE = docker-compose.yml
 .PHONY: help start stop destroy logs batch check update
 
 help:
-	@echo "Available commands:"
 	@echo ""
-	@echo "  make start       🟢 Start the container with build"
-	@echo "  make stop        🛑 Stop the container"
-	@echo "  make destroy     ⚠️  Remove container, images, volumes"
-	@echo "  make logs        📄 Tail cron logs"
-	@echo "  make batch       📬 Run batch email check"
-	@echo "  make check email=someone@example.com  ✅ Run single email check"
-	@echo "  make update      🔄 Update the list of disposable email domains"
-	@echo "  make help        ℹ️  Show this help message"
+	@echo "📘 Available commands:"
+	@echo "  make start                           		🟢 Start the Docker container with build"
+	@echo "  make stop                            		🛑 Stop the container"
+	@echo "  make destroy                         		⚠️  Remove container, images, volumes"
+	@echo "  make logs                            		📄 Tail cron logs"
+	@echo "  make batch                           		📬 Run batch email check"
+	@echo "  make check email=you@domain.com flag=-S|-F	✅ Check one email (optional add flag=-S for short or flag=-F for full)"
+	@echo "  make update                          		🔄 Update the list of disposable email domains"
+	@echo "  make help                            		ℹ️  Show this help message"
+
 
 start:
 	@echo "🟢 Starting the container..."
@@ -40,7 +41,8 @@ batch:
 	docker exec -it $(PROJECT_NAME) check_batch
 
 check:
-	docker exec -it $(PROJECT_NAME) check_email $(email)
+	@echo "✅ Checking single email: $(email) $(flag)"
+	docker exec -it $(PROJECT_NAME) check_email $(email) $(flag)
 
 update:
 	docker exec -it $(PROJECT_NAME) update_domains
