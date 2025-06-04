@@ -3,17 +3,17 @@
 PROJECT_NAME="email_checker"
 COMPOSE_FILE="docker-compose.yml"
 
-function start() {
+start() {
   echo "🟢 Starting the container..."
   docker-compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" up -d --build
 }
 
-function stop() {
+stop() {
   echo "🛑 Stopping the container..."
   docker-compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" down
 }
 
-function destroy() {
+destroy() {
   echo "⚠️ Attention! You are about to delete the containers, images, volumes of this project: $PROJECT_NAME"
   read -p "Are you sure? (yes/no): " confirm
   if [ "$confirm" == "yes" ]; then
@@ -24,17 +24,17 @@ function destroy() {
   fi
 }
 
-function logs() {
+logs() {
   echo "📄 Following cron logs..."
   docker exec -it "$PROJECT_NAME" tail -f /var/log/cron.log
 }
 
-function batch() {
+batch() {
   echo "📬 Running batch email check..."
   docker exec -it "$PROJECT_NAME" check_batch
 }
 
-function check() {
+check() {
   if [ -z "$2" ]; then
     echo "❌ Please provide an email to check. Usage: ./manage.sh -check someone@example.com [-S|-F]"
     exit 1
@@ -50,22 +50,38 @@ function check() {
   fi
 }
 
-function update() {
+update() {
   echo "🔄 Updating disposable domains list..."
   docker exec -it "$PROJECT_NAME" update_domains
 }
 
-function help() {
+set_user_config() {
+  if [ -z "$2" ]; then
+    echo "❌ Usage: ./manage.sh -set_user_config KEY=VALUE"
+    exit 1
+  fi
+  echo "⚙️  Setting user config: $2"
+  docker exec -it "$PROJECT_NAME" set_user_config "$2"
+}
+
+get_user_config() {
+  echo "🧾 Displaying user config..."
+  docker exec -it "$PROJECT_NAME" get_user_config
+}
+
+help() {
   echo ""
   echo "📘 Available commands:"
-  echo "  -start                🟢 Start the Docker container with build"
-  echo "  -stop                 🛑 Stop the container"
-  echo "  -destroy              ⚠️  Remove container, images, volumes"
-  echo "  -logs                 📄 Tail cron logs"
-  echo "  -batch                📬 Run batch email check"
-  echo "  -check [email] [flag] ✅ Run single email check (optional flags: -S for short, -F for full)"
-  echo "  -update               🔄 Update list of disposable domains"
-  echo "  -help                 ℹ️  Show this help message"
+  echo "  -start                   🟢 Start the Docker container with build"
+  echo "  -stop                    🛑 Stop the container"
+  echo "  -destroy                 ⚠️  Remove container, images, volumes"
+  echo "  -logs                    📄 Tail cron logs"
+  echo "  -batch                   📬 Run batch email check"
+  echo "  -check [email] [flag]    ✅ Run single email check (optional: -S/-F)"
+  echo "  -update                  🔄 Update list of disposable domains"
+  echo "  -set_user_config k=v     ⚙️  Set user config param"
+  echo "  -get_user_config         🧾 Show current user config"
+  echo "  -help                    ℹ️  Show this help message"
   echo ""
 }
 
@@ -77,5 +93,7 @@ case "$1" in
   -batch) batch ;;
   -check) check "$@" ;;
   -update) update ;;
+  -set_user_config) set_user_config "$@" ;;
+  -get_user_config) get_user_config ;;
   -help | *) help ;;
 esac

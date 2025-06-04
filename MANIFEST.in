@@ -1,1 +1,3 @@
 recursive-include src/app/data *.json
+
+exclude email_checker_user_config.py

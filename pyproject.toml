@@ -1,6 +1,6 @@
 [project]
 name = "email-checker-mv"
-version = "0.3.0"
+version = "0.4.0"
 description = "Batch and CLI email validator"
 license = {text = "MIT"}
 authors = [{ name = "Mykola Vuy", email = "mykola.vuy@gmail.com" }]
@@ -18,6 +18,8 @@ dependencies = [
 check_email = "app.cli:run_cli"
 check_batch = "app.runner:run_batch"
 update_domains = "app.utils.update_disposable_domains:update_domains"
+set_user_config = "app.user_config_manager:set_user_config_entrypoint"
+get_user_config = "app.user_config_manager:show_user_config_entrypoint"
 
 [build-system]
 requires = ["setuptools>=61.0"]
