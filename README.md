@@ -44,13 +44,15 @@ Feel free to explore, contribute, or fork the project.
 
 ## 🛠️ CLI Commands
 
-| Command                              | Description                                     |
-|--------------------------------------|-------------------------------------------------|
-| `check_email someone@example.com`    | ✅ Check a single email (default output)         |
-| `check_email someone@example.com -S` | ✅ Check a single email (short output)           |
-| `check_email someone@example.com -F` | ✅ Check a single email (full output)            |
-| `check_batch`                        | 📄 Batch check `.csv` files in the `input/` dir |
-| `update_domains`                     | 🔄 Update the list of disposable domains        |
+| Command                                | Description                                      |
+|----------------------------------------|--------------------------------------------------|
+| `check_email someone@example.com`      | ✅ Check a single email (default output)          |
+| `check_email someone@example.com -S`   | ✅ Check a single email (short output)            |
+| `check_email someone@example.com -F`   | ✅ Check a single email (full output)             |
+| `check_batch`                          | 📄 Batch check `.csv` files in the `input/` dir  |
+| `update_domains`                       | 🔄 Update the list of disposable domains         |
+| `set_user_config KEY=VAL`              | ⚙️ Set a runtime config variable                  |
+| `get_user_config`                      | 🧾 Show current user config values                |
 
 Disposable domains are fetched from [Propaganistas/Laravel-Disposable-Email](https://github.com/Propaganistas/laravel-disposable-email).
 
@@ -85,7 +87,6 @@ user2@example.com,undefined
 user3@example.com,check S
 user4@example.com,undefined F
 ```
-
 
 ### 📤 Output
 
@@ -125,6 +126,49 @@ You can safely rerun the same CSV file — already processed rows (anything exce
 > 📎 Note: `check_batch` rewrites the result to the "status" column in the output CSV file for each email.
 
 ---
+## ⚙️ Configurable Variables
+
+Starting from version `0.4.0`, you can dynamically modify runtime configuration parameters via CLI, `manage.sh`, or `Makefile`.
+
+### Available Configuration Keys
+
+| Variable           | Description                                                     |
+|--------------------|-----------------------------------------------------------------|
+| `MAX_EMAILS_PER_RUN` | Maximum number of emails to process in one batch run            |
+| `SMTP_FROM`          | Sender email used for SMTP HELO/EHLO                            |
+| `SMTP_TIMEOUT`       | Timeout for each SMTP connection (in seconds)                   |
+| `USE_EHLO`           | Use `EHLO` instead of `HELO` in SMTP handshake (`true`/`false`) |
+| `EHLO_DOMAIN`        | Custom domain for EHLO header                                   |
+| `USE_RANDOM_FROM`    | Randomize sender email (`true`/`false`)                        |
+| `CUSTOM_FROM_DOMAIN` | Domain used for `random@domain.com` when `USE_RANDOM_FROM=true` |
+| `DEBUG`              | Enable verbose debug output (`true`/`false`)                   |
+
+> These can be set using:
+
+```bash
+# CLI
+  set_user_config USE_EHLO=true
+
+# manage.sh
+  ./manage.sh -set_user_config USE_RANDOM_FROM=true
+
+# Makefile
+  make set_user_config key=DEBUG=true
+````
+
+> To view the current configuration:
+
+```bash
+# CLI
+  get_user_config
+
+# manage.sh
+  ./manage.sh -get_user_config
+
+# Makefile
+  make get_user_config
+```
+---
 
 ## 🐳 Docker Usage
 
@@ -138,18 +182,20 @@ You can control Docker using either `make` or `manage.sh`.
   chmod +x manage.sh
 ```
 
-| Command                                     | Description                             |
-| ------------------------------------------- | --------------------------------------- |
-| `./manage.sh -start`                        | 🟢 Start the container with build       |
-| `./manage.sh -stop`                         | 🛑 Stop the container                   |
-| `./manage.sh -destroy`                      | ⚠️ Remove container, images, volumes    |
-| `./manage.sh -logs`                         | 📄 Tail cron logs                       |
-| `./manage.sh -batch`                        | 📬 Run batch email check                |
-| `./manage.sh -check someone@example.com`    | ✅ Run single email check                |
-| `./manage.sh -check someone@example.com -S` | ✅ Run single email check (short output) |
-| `./manage.sh -check someone@example.com -F` | ✅ Run single email check (full output)  |
-| `./manage.sh -update`                       | 🔄 Update list of disposable domains    |
-| `./manage.sh -help`                         | ℹ️ Show this help message               |
+| Command                                     | Description                              |
+|---------------------------------------------|------------------------------------------|
+| `./manage.sh -start`                        | 🟢 Start the container with build        |
+| `./manage.sh -stop`                         | 🛑 Stop the container                    |
+| `./manage.sh -destroy`                      | ⚠️ Remove container, images, volumes     |
+| `./manage.sh -logs`                         | 📄 Tail cron logs                        |
+| `./manage.sh -batch`                        | 📬 Run batch email check                 |
+| `./manage.sh -check someone@example.com`    | ✅ Run single email check                 |
+| `./manage.sh -check someone@example.com -S` | ✅ Run single email check (short output)  |
+| `./manage.sh -check someone@example.com -F` | ✅ Run single email check (full output)   |
+| `./manage.sh -update`                       | 🔄 Update list of disposable domains     |
+| `./manage.sh -set_user_config KEY=VAL`      | ⚙️ Set a single user config parameter    |
+| `./manage.sh -get_user_config`              | 🧾 Show current user config              |
+| `./manage.sh -help`                         | ℹ️ Show this help message                |
 
 
 ### ⚙️ `Makefile` Shortcuts
@@ -157,7 +203,7 @@ You can control Docker using either `make` or `manage.sh`.
 > Use `make help` to list all commands.
 
 | Command                                     | Description                             |
-| ------------------------------------------- | --------------------------------------- |
+| ------------------------------------------- |-----------------------------------------|
 | `./manage.sh -start`                        | 🟢 Start the container with build       |
 | `./manage.sh -stop`                         | 🛑 Stop the container                   |
 | `./manage.sh -destroy`                      | ⚠️ Remove container, images, volumes    |
@@ -167,6 +213,8 @@ You can control Docker using either `make` or `manage.sh`.
 | `./manage.sh -check someone@example.com -S` | ✅ Run single email check (short output) |
 | `./manage.sh -check someone@example.com -F` | ✅ Run single email check (full output)  |
 | `./manage.sh -update`                       | 🔄 Update list of disposable domains    |
+| `make set_user_config key=VAL`              | ⚙️ Set a single user config parameter   |
+| `make get_user_config`                      | 🧾 Show current user config             |
 | `./manage.sh -help`                         | ℹ️ Show this help message               |
 
 

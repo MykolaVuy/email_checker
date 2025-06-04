@@ -45,3 +45,6 @@ coverage.xml
 # Local dev data
 emails.csv
 *.log
+
+# Environment variables
+email_checker_user_config.py
